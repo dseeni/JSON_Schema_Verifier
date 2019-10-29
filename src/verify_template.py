@@ -27,11 +27,32 @@
 from src.constants import *
 
 # try set containtment < > <= >= etc with sets, using keys/item views?
-print(template.keys())
-
-template_keys = {*template.keys()}
-john_keys = {*john.keys()}
-
-print(template_keys, john_keys)
 
 
+def verify_dict(template, sample):
+    if len(template.keys()) and len(sample.keys()) > 1:
+        template_keys = {*template.keys()}
+        sample_keys = {*sample.keys()}
+    else:
+        template_keys = template.keys()
+        sample_keys = sample.keys()
+    try:
+        # if the keys are all dictionaries at any level, assert they match
+        assert template_keys == sample_keys
+    except AssertionError:
+        pass
+    # if we have non dictionary keys present...
+    for key in template_keys:
+        if isinstance(template[key], dict):
+            verify_dict(template[key], sample[key])
+        else:
+            try:
+                assert isinstance(sample[key], template[key])
+            except AssertionError as a:
+                print(sample.get(key), type(sample.get(key)), 'does not match',
+                      template.get(key))
+                raise a
+    return True
+
+
+print(verify_dict(template, michael))

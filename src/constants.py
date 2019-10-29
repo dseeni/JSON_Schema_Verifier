@@ -55,3 +55,22 @@ eric = {
             }
         }
     }
+
+michael = {
+    'user_id': 102,
+    'name': {
+        'first': 'Michael',
+        'last': 'Palin'
+    },
+    'bio': {
+        'dob': {
+            'year': 1943,
+            'month': 'May',
+            'day': 5
+        },
+        'birthplace': {
+            'country': 'United Kingdom',
+            'city': 'Sheffield'
+        }
+    }
+}
