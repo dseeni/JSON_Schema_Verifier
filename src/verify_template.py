@@ -26,4 +26,12 @@
 
 from src.constants import *
 
+# try set containtment < > <= >= etc with sets, using keys/item views?
+print(template.keys())
+
+template_keys = {*template.keys()}
+john_keys = {*john.keys()}
+
+print(template_keys, john_keys)
+
 
