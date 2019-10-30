@@ -82,9 +82,9 @@ michael = {
 # extra key error --> 'middle'
 rodney = {
     'user_id': 100,
-    'nme': {
+    'name': {
         'first': 'Rodney',
-        'middle': 'Henry',
+        'middle': 'Lowe',
         'last': 'Cleese'
         },
     'bio': {

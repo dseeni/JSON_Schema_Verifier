@@ -32,6 +32,8 @@ class SchemaKeyMismatch(SchemaError):
     pass
 
 
+# notice the multiple inheritence from both SchemaError as a base Exception,
+# then from specifically TypeError...
 class SchemaTypeMismatch(SchemaError, TypeError):
     pass
 
@@ -51,32 +53,50 @@ def verify_keys(valid, data, path=''):
         raise SchemaKeyMismatch(' '.join((missing_msg, extra_msg)))
 
 
+# verify type(value) each depth level...
 def verify_types(valid, data, path=''):
-    # first figure out if the value to be verified is another dict or not
-    for key, value in data.items():
+    # lets assume here that the keys have already been matched OK
+    # but do not assume that the keys are necessarily in the same
+    # order in both the data and the valid template #
+
+    # decide whether item is dict or not first:
+    for key, value in valid.items():
         if isinstance(value, dict):
+            # marking the nested dict str as type(dict) via template_type
             template_type = dict
         else:
+            # otherwise we can just use the value in the current layer dict
             template_type = value
-
-
-def verify_schema(valid, data, path=''):
-    verify_keys(valid, data, path)
-
-
-    # if we have non dictionary keys present...(we're in the deepest branches)
-    # traverse the deeper branches recursively checking against schema_key
-    for key in template_keys:
-        if isinstance(valid[key], dict):
-            verify_schema(valid[key], data[key])
+        data_value = data.get(key, object())
+        if isinstance(data_value, template_type):
+            continue
         else:
-            try:
-                assert isinstance(data[key], valid[key])
-            except AssertionError as a:
-                print(data.get(key), type(data.get(key)),
-                      'does not match', valid.get(key))
-                raise a
-    return True
+            err_msg = ('incorrect type: ' + path + '.' + key +
+                       ' -> expected ' + template_type.__name__ +
+                       ', found ' + type(data_value).__name__)
+            raise SchemaTypeMismatch(err_msg)
+
+# this goes depth level one at a time, checking keys, then values,
+# then identifying the nested dicts in the values of the current depth level,
+# the recurcivley moving one level down again
+def recurse_validate(valid, data, path=''):
+    verify_keys(valid, data, path)
+    verify_types(valid, data, path)
+    # now we can assume both keys and values on the first layer are verified
+
+    # get good at these if / else inside a comprehension
+    dict_type_keys = {key for key, value in valid.items()
+                      if isinstance(value, dict)}
+
+    for key in dict_type_keys:
+        sub_path = path + '.' + str(key)
+        sub_template = valid[key]
+        sub_data = data[key]
+        recurse_validate(sub_template, sub_data, sub_path)
+
+
+def validate(valid, data):
+    recurse_validate(valid, data, '')
 
 
 # returns True
@@ -89,4 +109,5 @@ def verify_schema(valid, data, path=''):
 # print(verify_schema(template, michael))
 
 # extra key error
-print(verify_keys(template, rodney))
+print(validate(template, rodney))
+# print(validate(rodney, template))
