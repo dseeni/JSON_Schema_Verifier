@@ -36,12 +36,13 @@ def verify_dict(template, sample):
     else:
         template_keys = template.keys()
         sample_keys = sample.keys()
+    # at each depth level, check against extra keys
     try:
-        # if the keys are all dictionaries at any level, assert they match
-        assert template_keys == sample_keys
-    except AssertionError:
-        pass
-    # if we have non dictionary keys present...
+        assert len(template_keys) == len(sample_keys)
+    except AssertionError as a:
+        print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
+        raise a
+    # if we have non dictionary keys present...(we're in the deepest branches)
     for key in template_keys:
         if isinstance(template[key], dict):
             verify_dict(template[key], sample[key])
@@ -55,4 +56,4 @@ def verify_dict(template, sample):
     return True
 
 
-print(verify_dict(template, michael))
+print(verify_dict(template, rodney))
