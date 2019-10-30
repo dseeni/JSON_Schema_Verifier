@@ -24,42 +24,69 @@
 from src.constants import *
 
 
-def verify_dict(schema_key, sample):
-    if len(schema_key.keys()) and len(sample.keys()) > 1:
-        template_keys = {*schema_key.keys()}
-        sample_keys = {*sample.keys()}
-    else:
-        template_keys = schema_key.keys()
-        sample_keys = sample.keys()
-    # at each depth level, check against extra keys
-    try:
-        assert len(template_keys) == len(sample_keys)
-    except AssertionError as a:
-        print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
-        raise a
+class SchemaError(Exception):
+    pass
+
+
+class SchemaKeyMismatch(SchemaError):
+    pass
+
+
+class SchemaTypeMismatch(SchemaError, TypeError):
+    pass
+
+
+def verify_keys(valid, data, path=''):
+    valid_keys = valid.keys()
+    data_keys = data.keys()
+    missing = valid_keys - data_keys
+    extra = data_keys - valid_keys
+    if extra or missing:
+        missing_msg = (('missing keys:' + ','.join({path + '.' + str(key)
+                                                  for key in missing}))
+                       if missing else '')
+        extra_msg = (('extra keys:' + ','.join({path + '.' + str(key)
+                                                for key in extra})
+                      if extra else ''))
+        raise SchemaKeyMismatch(' '.join((missing_msg, extra_msg)))
+
+
+def verify_types(valid, data, path=''):
+    # first figure out if the value to be verified is another dict or not
+    for key, value in data.items():
+        if isinstance(value, dict):
+            template_type = dict
+        else:
+            template_type = value
+
+
+def verify_schema(valid, data, path=''):
+    verify_keys(valid, data, path)
+
+
     # if we have non dictionary keys present...(we're in the deepest branches)
     # traverse the deeper branches recursively checking against schema_key
     for key in template_keys:
-        if isinstance(schema_key[key], dict):
-            verify_dict(schema_key[key], sample[key])
+        if isinstance(valid[key], dict):
+            verify_schema(valid[key], data[key])
         else:
             try:
-                assert isinstance(sample[key], schema_key[key])
+                assert isinstance(data[key], valid[key])
             except AssertionError as a:
-                print(sample.get(key), type(sample.get(key)),
-                      'does not match', schema_key.get(key))
+                print(data.get(key), type(data.get(key)),
+                      'does not match', valid.get(key))
                 raise a
     return True
 
 
 # returns True
-# print(verify_dict(template, john))
+# print(verify_schema()(template, john))
 
 # missing 'city' sub dict
-# print(verify_dict(template, eric))
+# print(verify_schema(template, eric))
 
 # dob:'month':<str> not int!
-# print(verify_dict(template, michael))
+# print(verify_schema(template, michael))
 
 # extra key error
-print(verify_dict(template, rodney))
+print(verify_keys(template, rodney))
