@@ -38,7 +38,7 @@ def verify_dict(schema_key, sample):
         print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
         raise a
     # if we have non dictionary keys present...(we're in the deepest branches)
-    # traverse the deeper branches recursively checking against template
+    # traverse the deeper branches recursively checking against schema_key
     for key in template_keys:
         if isinstance(schema_key[key], dict):
             verify_dict(schema_key[key], sample[key])
