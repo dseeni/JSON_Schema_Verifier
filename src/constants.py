@@ -1,5 +1,6 @@
 
 
+# key to check against
 template = {
     'user_id': int,
     'name': {
@@ -19,6 +20,7 @@ template = {
         }
     }
 
+# good key
 john = {
     'user_id': 100,
     'name': {
@@ -38,6 +40,7 @@ john = {
         }
     }
 
+# missing 'city' sub dict
 eric = {
     'user_id': 101,
     'name': {
@@ -52,6 +55,47 @@ eric = {
             },
         'birthplace': {
             'country': 'United Kingdom'
+            }
+        }
+    }
+
+# dob:'month':<str> not int!
+michael = {
+    'user_id': 102,
+    'name': {
+        'first': 'Michael',
+        'last': 'Palin'
+    },
+    'bio': {
+        'dob': {
+            'year': 1943,
+            'month': 'May',
+            'day': 5
+        },
+        'birthplace': {
+            'country': 'United Kingdom',
+            'city': 'Sheffield'
+        }
+    }
+}
+
+# Extra Key error
+rodney = {
+    'user_id': 100,
+    'name': {
+        'first': 'Rodney',
+        'middle': 'Henry',
+        'last': 'Cleese'
+        },
+    'bio': {
+        'dob': {
+            'year': 1939,
+            'month': 11,
+            'day': 27
+            },
+        'birthplace': {
+            'country': 'United Kingdom',
+            'city': 'Weston-super-Mare'
             }
         }
     }
