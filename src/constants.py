@@ -83,7 +83,7 @@ michael = {
 rodney = {
     'user_id': 100,
     'name': {
-        'first': 'Rodney',
+        'fist': 'Rodney',
         'middle': 'Henry',
         'last': 'Cleese'
         },

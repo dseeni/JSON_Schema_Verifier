@@ -25,17 +25,17 @@ from src.constants import *
 
 
 def verify_dict(schema_key, sample):
-    if len(schema_key.keys()) and len(sample.keys()) > 1:
-        template_keys = {*schema_key.keys()}
-        sample_keys = {*sample.keys()}
-    else:
-        template_keys = schema_key.keys()
-        sample_keys = sample.keys()
+    template_keys = schema_key.keys()
+    sample_keys = sample.keys()
+
     # at each depth level, check against extra keys
     try:
         assert len(template_keys) == len(sample_keys)
     except AssertionError as a:
-        print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
+        if len(sample_keys - template_keys):
+            print('Extra Keys:', sample_keys - template_keys)
+        if len(template_keys - sample_keys):
+            print('Missing Keys:', template_keys - sample_keys)
         raise a
     # if we have non dictionary keys present...(we're in the deepest branches)
     # traverse the deeper branches recursively checking against schema_key
@@ -46,8 +46,9 @@ def verify_dict(schema_key, sample):
             try:
                 assert isinstance(sample[key], schema_key[key])
             except AssertionError as a:
-                print(sample.get(key), type(sample.get(key)),
-                      'does not match', schema_key.get(key))
+                print('value:', sample.get(key), 'of type',
+                      type(sample.get(key)),
+                      'does not match schema type', schema_key.get(key))
                 raise a
     return True
 
