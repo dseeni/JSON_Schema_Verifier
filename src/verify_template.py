@@ -17,24 +17,19 @@
 #
 # In practice we would not have these simplifying assumptions, and although we
 # could definitely write this ourselves, there are many 3rd party libraries that
-# already exist to do this (such as jsonschema, marshmallow, and many more, some
+# already exist to do this
+# (such as json schema, marshmallow, and many more, some
 # of which I'll cover lightly in some later videos.)
-#
-# For example you might have this template:
 # # ----------------------------------------------------------------------------
-
-
 from src.constants import *
 
-# try set containtment < > <= >= etc with sets, using keys/item views?
 
-
-def verify_dict(template, sample):
-    if len(template.keys()) and len(sample.keys()) > 1:
-        template_keys = {*template.keys()}
+def verify_dict(schema_key, sample):
+    if len(schema_key.keys()) and len(sample.keys()) > 1:
+        template_keys = {*schema_key.keys()}
         sample_keys = {*sample.keys()}
     else:
-        template_keys = template.keys()
+        template_keys = schema_key.keys()
         sample_keys = sample.keys()
     # at each depth level, check against extra keys
     try:
@@ -43,15 +38,16 @@ def verify_dict(template, sample):
         print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
         raise a
     # if we have non dictionary keys present...(we're in the deepest branches)
+    # traverse the deeper branches recursively checking against template
     for key in template_keys:
-        if isinstance(template[key], dict):
-            verify_dict(template[key], sample[key])
+        if isinstance(schema_key[key], dict):
+            verify_dict(schema_key[key], sample[key])
         else:
             try:
-                assert isinstance(sample[key], template[key])
+                assert isinstance(sample[key], schema_key[key])
             except AssertionError as a:
-                print(sample.get(key), type(sample.get(key)), 'does not match',
-                      template.get(key))
+                print(sample.get(key), type(sample.get(key)),
+                      'does not match', schema_key.get(key))
                 raise a
     return True
 
@@ -66,4 +62,4 @@ def verify_dict(template, sample):
 # print(verify_dict(template, michael))
 
 # extra key error
-# print(verify_dict(template, rodney))
+print(verify_dict(template, rodney))
