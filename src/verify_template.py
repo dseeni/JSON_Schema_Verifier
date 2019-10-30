@@ -29,14 +29,10 @@ def verify_dict(schema_key, sample):
     sample_keys = sample.keys()
 
     # at each depth level, check against extra keys
-    try:
-        assert len(template_keys) == len(sample_keys)
-    except AssertionError as a:
-        if len(sample_keys - template_keys):
-            print('Extra Keys:', sample_keys - template_keys)
-        if len(template_keys - sample_keys):
-            print('Missing Keys:', template_keys - sample_keys)
-        raise a
+    if len(template_keys - sample_keys) > 0:
+        raise KeyError('Missing Keys:', template_keys - sample_keys)
+    if len(sample_keys - template_keys) > 0:
+        raise KeyError('Extra Keys:', sample_keys - template_keys)
     # if we have non dictionary keys present...(we're in the deepest branches)
     # traverse the deeper branches recursively checking against schema_key
     for key in template_keys:
@@ -45,11 +41,11 @@ def verify_dict(schema_key, sample):
         else:
             try:
                 assert isinstance(sample[key], schema_key[key])
-            except AssertionError as a:
-                print('value:', sample.get(key), 'of type',
-                      type(sample.get(key)),
-                      'does not match schema type', schema_key.get(key))
-                raise a
+            except AssertionError:
+                raise TypeError('value:', sample.get(key),
+                                'of type', type(sample.get(key)),
+                                'does not match schema type',
+                                schema_key.get(key))
     return True
 
 
@@ -60,7 +56,7 @@ def verify_dict(schema_key, sample):
 # print(verify_dict(template, eric))
 
 # dob:'month':<str> not int!
-# print(verify_dict(template, michael))
+print(verify_dict(template, michael))
 
 # extra key error
-print(verify_dict(template, rodney))
+# print(verify_dict(template, rodney))
