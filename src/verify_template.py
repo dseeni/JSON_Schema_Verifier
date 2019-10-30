@@ -56,4 +56,14 @@ def verify_dict(template, sample):
     return True
 
 
-print(verify_dict(template, rodney))
+# returns True
+# print(verify_dict(template, john))
+
+# missing 'city' sub dict
+# print(verify_dict(template, eric))
+
+# dob:'month':<str> not int!
+# print(verify_dict(template, michael))
+
+# extra key error
+# print(verify_dict(template, rodney))
