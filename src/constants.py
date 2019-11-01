@@ -1,5 +1,3 @@
-
-
 # key to check against
 template = {
     'user_id': int,
