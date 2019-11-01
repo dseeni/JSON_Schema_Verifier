@@ -79,7 +79,7 @@ michael = {
     }
 }
 
-# Extra Key error
+# extra key error --> 'middle'
 rodney = {
     'user_id': 100,
     'name': {

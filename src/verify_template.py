@@ -17,43 +17,46 @@
 #
 # In practice we would not have these simplifying assumptions, and although we
 # could definitely write this ourselves, there are many 3rd party libraries that
-# already exist to do this (such as jsonschema, marshmallow, and many more, some
+# already exist to do this
+# (such as json schema, marshmallow, and many more, some
 # of which I'll cover lightly in some later videos.)
-#
-# For example you might have this template:
 # # ----------------------------------------------------------------------------
-
-
 from src.constants import *
 
-# try set containtment < > <= >= etc with sets, using keys/item views?
 
+def verify_dict(schema_key, sample):
+    template_keys = schema_key.keys()
+    sample_keys = sample.keys()
 
-def verify_dict(template, sample):
-    if len(template.keys()) and len(sample.keys()) > 1:
-        template_keys = {*template.keys()}
-        sample_keys = {*sample.keys()}
-    else:
-        template_keys = template.keys()
-        sample_keys = sample.keys()
     # at each depth level, check against extra keys
-    try:
-        assert len(template_keys) == len(sample_keys)
-    except AssertionError as a:
-        print('Unexpected Key(s) Found:', template_keys ^ sample_keys)
-        raise a
+    if len(template_keys - sample_keys) > 0:
+        raise KeyError('Missing Keys:', template_keys - sample_keys)
+    if len(sample_keys - template_keys) > 0:
+        raise KeyError('Extra Keys:', sample_keys - template_keys)
     # if we have non dictionary keys present...(we're in the deepest branches)
+    # traverse the deeper branches recursively checking against schema_key
     for key in template_keys:
-        if isinstance(template[key], dict):
-            verify_dict(template[key], sample[key])
+        if isinstance(schema_key[key], dict):
+            verify_dict(schema_key[key], sample[key])
         else:
             try:
-                assert isinstance(sample[key], template[key])
-            except AssertionError as a:
-                print(sample.get(key), type(sample.get(key)), 'does not match',
-                      template.get(key))
-                raise a
+                assert isinstance(sample[key], schema_key[key])
+            except AssertionError:
+                raise TypeError('value:', sample.get(key),
+                                'of type', type(sample.get(key)),
+                                'does not match schema type',
+                                schema_key.get(key))
     return True
 
 
-print(verify_dict(template, rodney))
+# returns True
+# print(verify_dict(template, john))
+
+# missing 'city' sub dict
+# print(verify_dict(template, eric))
+
+# dob:'month':<str> not int!
+print(verify_dict(template, michael))
+
+# extra key error
+# print(verify_dict(template, rodney))
